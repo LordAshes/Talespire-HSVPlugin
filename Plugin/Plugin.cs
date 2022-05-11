@@ -152,8 +152,8 @@ namespace LordAshes
                     Debug.Log("HSV Plugin: Manual HSV Application Triggered");
                     foreach (CreatureBoardAsset asset in CreaturePresenter.AllCreatureAssets)
                     {
-                        Debug.Log("HSV Plugin: Refreshing HSV On " + asset.Creature.CreatureId + ".");
-                        StartCoroutine("RefreshHSV", new object[] { asset.Creature.CreatureId });
+                        Debug.Log("HSV Plugin: Refreshing HSV On " + asset.CreatureId + ".");
+                        StartCoroutine("RefreshHSV", new object[] { asset.CreatureId });
                     }
                 }
             }
@@ -171,7 +171,7 @@ namespace LordAshes
             CreaturePresenter.TryGetAsset(new CreatureGuid(RadialUI.RadialUIPlugin.GetLastRadialTargetCreature()), out asset);
             if (asset != null)
             {
-                string[] values = StatMessaging.ReadInfo(asset.Creature.CreatureId, HSVPlugin.Guid).Split(',');
+                string[] values = StatMessaging.ReadInfo(asset.CreatureId, HSVPlugin.Guid).Split(',');
                 try
                 {
                     h = float.Parse(values[0]);
@@ -226,7 +226,7 @@ namespace LordAshes
                 {
                     Debug.Log("HSV Plugin: Processing HSV Transformation For "+StatMessaging.GetCreatureName(asset)+" (H" + dh + ":S" + ds + ":V" + dv + ")");
                     phase = "Get Mini Reference";
-                    GameObject go = asset.CreatureLoaders[0].gameObject;
+                    GameObject go = Utility.GetRootObject(asset.CreatureId);
                     phase = "Get Mini Render Reference";
                     Renderer rend = go.GetComponentInChildren<Renderer>();
 
@@ -287,7 +287,7 @@ namespace LordAshes
                         }
                         bytes = alt.EncodeToPNG();
                         phase = "Write Uncompressed Texture Object";
-                        System.IO.File.WriteAllBytes(data + "/CustomData/Images/" + asset.Creature.CreatureId + ".png", bytes);
+                        System.IO.File.WriteAllBytes(data + "/CustomData/Images/" + asset.CreatureId + ".png", bytes);
                         Debug.Log("HSV Plugin: Applying Transformation.");
                         phase = "Apply Transformation To Texture Object";
                         System.Diagnostics.Process transformation = new System.Diagnostics.Process()
@@ -296,7 +296,7 @@ namespace LordAshes
                             {
                                 FileName = data + "/ImageAdjust.exe",
                                 WorkingDirectory = data,
-                                Arguments = "\"" + data + "/CustomData/Images/" + asset.Creature.CreatureId + ".png\" " + dh + " " + ds + " " + dv,
+                                Arguments = "\"" + data + "/CustomData/Images/" + asset.CreatureId + ".png\" " + dh + " " + ds + " " + dv,
                                 CreateNoWindow = true,
                                 RedirectStandardOutput = true,
                                 UseShellExecute = false
@@ -308,8 +308,8 @@ namespace LordAshes
                         Debug.Log("HSV Plugin: ImageAdjust Output = " + output);
                         phase = "Apply New Texture";
                         Debug.Log("HSV Plugin: Loading Transformation.");
-                        rend.material.mainTexture = LoadTexture(data + "/CustomData/Images/" + asset.Creature.CreatureId + ".png");
-                        // try { System.IO.File.Delete(data + "/CustomData/Images/" + asset.Creature.CreatureId + ".png"); } catch (Exception) {; }
+                        rend.material.mainTexture = LoadTexture(data + "/CustomData/Images/" + asset.CreatureId + ".png");
+                        // try { System.IO.File.Delete(data + "/CustomData/Images/" + asset.CreatureId + ".png"); } catch (Exception) {; }
                     }
                 }
                 catch(Exception x)
